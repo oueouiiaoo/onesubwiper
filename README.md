@@ -1,2 +1,2 @@
 # onesubwiper
-WIP script to clear all of your comments from one subreddit.
+WIP program to clear all of your comments from one subreddit.
