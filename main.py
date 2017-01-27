@@ -5,8 +5,10 @@ import json
 import sys
 import time
 
-def dump_user_comments(username):
+def dump_user_comments(username, subreddits):
     url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+    commentcount = 0
+    commentsprinted = 0
     while True:
         jsonresponse = json.loads(subprocess.check_output([
             "curl",
@@ -15,19 +17,24 @@ def dump_user_comments(username):
         ]).decode("utf-8"))
         if "data" in jsonresponse:
             for child in jsonresponse["data"]["children"]:
-                if child["data"]["subreddit"] == "FULLCOMMUNISM":
-                    print("[ Subreddit ] " + child["data"]["subreddit"])
-                    print("[ Fullname ] " + child["data"]["name"])
-                    print("[ Comment ] " + child["data"]["body"] + "\n")
+                if child["data"]["subreddit"] in subreddits:
+                    print(child["data"]["subreddit"] + ":: " + child["data"]["link_title"])
+                    # print("[ Fullname ] " + child["data"]["name"])
+                    print(child["data"]["body"] + "\n\n\n")
+                    commentsprinted += 1
+                commentcount += 1
             if jsonresponse["data"]["after"] == None:
+                # print("[ Downloaded " + str(commentcount) + " comments ]")
+                # print("[ Printed " + str(commentsprinted) + " comments ]")
                 break
             else:
-                print("[ After ] " + jsonresponse["data"]["after"])
+                # print("[ After ] " + jsonresponse["data"]["after"])
                 url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
                 url = url + "&after=" + jsonresponse["data"]["after"]
         else:
-            print(jsonresponse)
-            time.sleep(2)
+            pass
+            # print(jsonresponse)
+            # time.sleep(1)
 
 def main():
     clientid = ""
@@ -56,5 +63,12 @@ def main():
         print("The response did not include an access token")
 
 if __name__ == "__main__":
-    dump_user_comments("trekman10")
+    dump_user_comments("trekman10", [
+        "FULLCOMMUNISM",
+        "COMPLETENANARCHY",
+        "socialism",
+        "LateStageCapitalism",
+        "Trotskyism",
+        "anarchy"
+    ])
 
