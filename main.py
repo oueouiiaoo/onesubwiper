@@ -6,11 +6,12 @@ import sys
 import time
 
 def dump_user_comments(username):
+    url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
     while True:
         jsonresponse = json.loads(subprocess.check_output([
             "curl",
             "-s",
-            "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+            url
         ]).decode("utf-8"))
         if "data" in jsonresponse:
             for child in jsonresponse["data"]["children"]:
@@ -18,7 +19,12 @@ def dump_user_comments(username):
                     print("[ Subreddit ] " + child["data"]["subreddit"])
                     print("[ Fullname ] " + child["data"]["name"])
                     print("[ Comment ] " + child["data"]["body"] + "\n")
-            break
+            if jsonresponse["data"]["after"] == None:
+                break
+            else:
+                print("[ After ] " + jsonresponse["data"]["after"])
+                url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+                url = url + "&after=" + jsonresponse["data"]["after"]
         else:
             print(jsonresponse)
             time.sleep(2)
