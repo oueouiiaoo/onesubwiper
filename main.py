@@ -36,6 +36,53 @@ def dump_user_comments(username, subreddits):
             # print(jsonresponse)
             # time.sleep(1)
 
+def dump_user_comment_fullnames(username, subreddits):
+    url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+    commentcount = 0
+    commentsprinted = 0
+    while True:
+        jsonresponse = json.loads(subprocess.check_output([
+            "curl",
+            "-s",
+            url
+        ]).decode("utf-8"))
+        if "data" in jsonresponse:
+            for child in jsonresponse["data"]["children"]:
+                if child["data"]["subreddit"] in subreddits:
+                    print(child["data"]["name"])
+                    commentsprinted += 1
+                commentcount += 1
+            if jsonresponse["data"]["after"] == None:
+                print(str(commentsprinted) + " total")
+                break
+            else:
+                url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+                url = url + "&after=" + jsonresponse["data"]["after"]
+        else:
+            pass
+            # print(jsonresponse)
+            # time.sleep(1)
+
+def get_user_comment_fullnames(username, subreddits):
+    url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+    fullnames = []
+    while True:
+        jsonresponse = json.loads(subprocess.check_output([
+            "curl",
+            "-s",
+            url
+        ]).decode("utf-8"))
+        if "data" in jsonresponse:
+            for child in jsonresponse["data"]["children"]:
+                if child["data"]["subreddit"] in subreddits:
+                    fullnames.append(child["data"]["name"])
+            if jsonresponse["data"]["after"] == None:
+                break
+            else:
+                url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+                url = url + "&after=" + jsonresponse["data"]["after"]
+    return fullnames
+
 def main():
     clientid = ""
     secret = ""
@@ -62,13 +109,44 @@ def main():
     else:
         print("The response did not include an access token")
 
+def edit_comments(clientid, secret, username, password, fullnames, note):
+    access_token = None
+    while True:
+        jsonresponse = json.loads(subprocess.check_output([
+            "curl",
+            "-s",
+            "-X",
+            "POST",
+            "-d",
+            "grant_type=password&username=" + username + "&password=" + password,
+            "--user",
+            clientid + ":" + secret,
+            "https://www.reddit.com/api/v1/access_token"
+        ]).decode("utf-8"))
+        if "access_token" in jsonresponse:
+            access_token = jsonresponse["access_token"]
+            print(access_token)
+            break
+        else:
+            print("We did not get an access token.")
+    for name in fullnames:
+        print(subprocess.check_output([
+            "curl",
+            "-s",
+            "-X",
+            "POST",
+            "-H",
+            "Authorization: bearer " + access_token,
+            "-d",
+            "api_type=json&text=" + note + "&thing_id=" + name,
+            "https://oauth.reddit.com/api/editusertext"
+        ]).decode("utf-8"))
+
 if __name__ == "__main__":
-    dump_user_comments("trekman10", [
-        "FULLCOMMUNISM",
-        "COMPLETENANARCHY",
-        "socialism",
-        "LateStageCapitalism",
-        "Trotskyism",
-        "anarchy"
-    ])
+    pass
+    #fns = get_user_comment_fullnames("trekman10", [
+    #    "FULLCOMMUNISM", "COMPLETENANARCHY",
+    #    "socialism", "LateStageCapitalism",
+    #    "Trotskyism", "anarchy", "Anarchism"
+    #])
 
