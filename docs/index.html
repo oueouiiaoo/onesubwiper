@@ -25,7 +25,10 @@
       (function() {
       var parameters = decodeURI(window.location.href).split(/\?|=|&/);
       for(var i = 1; i != parameters.length; i++) {
-      if(parameters[i] === "code") document.getElementById("step2").removeAttribute("hidden");
+      if(parameters[i] === "code") {
+      document.getElementById("step2").removeAttribute("hidden");
+      document.getElementById("authorizationcode").innerHTML = parameters[i + 1];
+      }
       }
       })();
     </script>
