@@ -143,22 +143,22 @@ def edit_comments(clientid, secret, username, password, fullnames, note):
         ]).decode("utf-8"))
 
 if __name__ == "__main__":
+    useragent = "onesubwiper 1.0"
     access_token = None
-    while True:
+    while access_token == None:
         sys.stdout.write("(code) ")
         sys.stdout.flush()
         code = sys.stdin.readline()
-        while True:
+        while access_token == None:
             jsonres = json.loads(subprocess.check_output([
-                "curl",
-                "-s",
-                "-X",
-                "POST",
-                "-d",
-                "grant_type=authorization_code&code=" + code + "&redirect_uri=https://oueouiiaoo.github.io/onesubwiper/index.html",
-                "--user",
-                "VScq0j6VBmWeig:",
-                "https://www.reddit.com/api/v1/access_token"
+                "curl", "-s", "-A", useragent, "-X", "POST", "-d",
+                "grant_type=authorization_code&code=" + code.splitlines()[0] + "&redirect_uri=https://oueouiiaoo.github.io/onesubwiper/index.html",
+                "--user", "VScq0j6VBmWeig:", "https://www.reddit.com/api/v1/access_token"
             ]).decode("utf-8"))
-            print(jsonres)
-
+            if "access_token" in jsonres:
+                access_token = jsonres["access_token"]
+            if "error" in jsonres:
+                if jsonres["error"] == "invalid_grant":
+                    print("[invalid_grant]")
+                    break
+    username = None
