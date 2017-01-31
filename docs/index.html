@@ -6,7 +6,7 @@
     </title>
   </head>
   <body>
-    <div id="step1" hidden>
+    <div id="step1">
       <p style="display: block; font-family: monospace;">
 	onesubwiper is a small script to let you overwrite your comments one certain subreddits.
 	It works on Linux and Mac OS X, you will need to have python and curl installed.
@@ -28,6 +28,12 @@
       if(parameters[i] === "code") {
       document.getElementById("step2").removeAttribute("hidden");
       document.getElementById("authorizationcode").innerHTML = parameters[i + 1];
+      document.getElementById("step1").setAttribute("hidden", "true");
+      }
+      if(parameters[i] === "error") {
+      document.getElementById("step2").removeAttribute("hidden");
+      document.getElementById("authorizationcode").innerHTML = "error " + parameters[i + 1];
+      document.getElementById("step1").setAttribute("hidden", "true");
       }
       }
       })();
