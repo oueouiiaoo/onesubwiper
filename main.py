@@ -83,7 +83,7 @@ def get_user_comment_fullnames(username, subreddits):
                 url = url + "&after=" + jsonresponse["data"]["after"]
     return fullnames
 
-def main():
+def old_main():
     clientid = ""
     secret = ""
     username = sys.argv[1]
@@ -143,10 +143,22 @@ def edit_comments(clientid, secret, username, password, fullnames, note):
         ]).decode("utf-8"))
 
 if __name__ == "__main__":
-    pass
-    #fns = get_user_comment_fullnames("trekman10", [
-    #    "FULLCOMMUNISM", "COMPLETENANARCHY",
-    #    "socialism", "LateStageCapitalism",
-    #    "Trotskyism", "anarchy", "Anarchism"
-    #])
+    access_token = None
+    while True:
+        sys.stdout.write("(code) ")
+        sys.stdout.flush()
+        code = sys.stdin.readline()
+        while True:
+            jsonres = json.loads(subprocess.check_output([
+                "curl",
+                "-s",
+                "-X",
+                "POST",
+                "-d",
+                "grant_type=authorization_code&code=" + code + "&redirect_uri=https://oueouiiaoo.github.io/onesubwiper/index.html",
+                "--user",
+                "VScq0j6VBmWeig:",
+                "https://www.reddit.com/api/v1/access_token"
+            ]).decode("utf-8"))
+            print(jsonres)
 
