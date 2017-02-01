@@ -164,7 +164,7 @@ if __name__ == "__main__":
     while username == None:
         print(subprocess.check_output([
             "curl", "-s", "-A", useragent,
-            "Authorization: bearer " + access_token,
+            "-H", "Authorization: bearer " + access_token,
             "https://oauth.reddit.com/api/v1/me"
-        ]))
+        ]).decode("utf-8"))
     
