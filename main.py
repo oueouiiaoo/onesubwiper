@@ -166,5 +166,5 @@ if __name__ == "__main__":
             "curl", "-s", "-A", useragent,
             "Authorization: bearer " + access_token,
             "https://oauth.reddit.com/api/v1/me"
-        ]).decode("utf-8"))
+        ]))
     
