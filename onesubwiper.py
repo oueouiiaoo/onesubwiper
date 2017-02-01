@@ -5,6 +5,16 @@ import json
 import sys
 
 if __name__ == "__main__":
+    print("oueouiiaoo.github.io/onesubwiper/")
+    print("- enter the code from the website to authorize onesubwiper")
+    print("  copying and pasting really helps if you can")
+    print("- a list of the subreddits you have comments on will appear")
+    print("- copy out the name of the subreddit who's comments you")
+    print("  want to replace and press enter")
+    print("- enter the text you wish to have replace those comments")
+    print("- repeat for all desired subs")
+    print("- when you're done you can exit by pressing enter without")
+    print("- typing in the name of a sub")
     useragent = "onesubwiper 1.0"
     access_token = None
     while access_token == None:
