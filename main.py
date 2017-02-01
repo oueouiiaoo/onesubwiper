@@ -162,9 +162,12 @@ if __name__ == "__main__":
                     break
     username = None
     while username == None:
-        print(subprocess.check_output([
+        jsonres = json.loads(subprocess.check_output([
             "curl", "-s", "-A", useragent,
             "-H", "Authorization: bearer " + access_token,
             "https://oauth.reddit.com/api/v1/me"
         ]).decode("utf-8"))
+        if "name" in jsonres:
+            username = jsonres["name"]
+    print("USERNAME " + username)
     
