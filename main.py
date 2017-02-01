@@ -121,26 +121,6 @@ def edit_comments(clientid, secret, username, password, fullnames, note):
             "api_type=json&text=" + note + "&thing_id=" + name,
             "https://oauth.reddit.com/api/editusertext"
         ]).decode("utf-8"))
-
-def get_user_comment_fullnames(username, subreddits):
-    url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
-    fullnames = []
-    while True:
-        jsonresponse = json.loads(subprocess.check_output([
-            "curl",
-            "-s",
-            url
-        ]).decode("utf-8"))
-        if "data" in jsonresponse:
-            for child in jsonresponse["data"]["children"]:
-                if child["data"]["subreddit"] in subreddits:
-                    fullnames.append(child["data"]["name"])
-            if jsonresponse["data"]["after"] == None:
-                break
-            else:
-                url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
-                url = url + "&after=" + jsonresponse["data"]["after"]
-    return fullnames
         
 if __name__ == "__main__":
     useragent = "onesubwiper 1.0"
@@ -160,7 +140,7 @@ if __name__ == "__main__":
             if "error" in jsonres:
                 if jsonres["error"] == "invalid_grant":
                     break
-    username = "trekman10"
+    username = None
     while username == None:
         jsonres = json.loads(subprocess.check_output([
             "curl", "-s", "-A", useragent,
@@ -169,7 +149,7 @@ if __name__ == "__main__":
         ]).decode("utf-8"))
         if "name" in jsonres:
             username = jsonres["name"]
-    print("USERNAME: " + username)
+    print(username)
     comments = {}
     commenturl = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
     while True:
@@ -186,6 +166,24 @@ if __name__ == "__main__":
             else:
                 commenturl = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
                 commenturl = commenturl + "&after=" + jsonres["data"]["after"]
-    for sub in comments:
-        print(sub + ": " + str(len(comments[sub])))
+    while True:
+        totalcomments = 0
+        for sub in comments:
+            totalcomments += len(comments[sub])
+            print(sub + " " + str(len(comments[sub])) + " " + str(totalcomments) + "+")
+        sys.stdout.write("(subreddit) ")
+        sys.stdout.flush()
+        subreddit = sys.stdin.readline().splitlines()[0]
+        sys.stdout.write("(replacement) ")
+        sys.stdout.flush()
+        replacement = sys.stdin.readline().splitlines()[0]
+        if subreddit == "":
+            quit()
+        if subreddit in comments:
+            for fullname in comments[subreddit]:
+                subprocess.check_output(["curl", "-s", "-A", useragent, "-X", "POST",
+                    "-H", "Authorization: bearer " + access_token,
+                    "-d", "api_type=json&text=" + replacement + "&thing_id=" + fullname,
+                    "https://oauth.reddit.com/api/editusertext"])
+            comments.pop(subreddit)
 
