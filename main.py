@@ -159,13 +159,13 @@ if __name__ == "__main__":
                 access_token = jsonres["access_token"]
             if "error" in jsonres:
                 if jsonres["error"] == "invalid_grant":
-                    print("[invalid_grant]")
                     break
     username = None
     while username == None:
-        jsonres = json.loads(subprocess.check_output([
+        jsonres = subprocess.check_output([
             "curl", "-s", "-A", useragent,
             "Authorization: bearer " + access_token,
             "https://oauth.reddit.com/api/v1/me"
-        ]).decode("utf-8"))
+        ]).decode("utf-8")
+        print(jsonres)
     
