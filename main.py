@@ -63,26 +63,6 @@ def dump_user_comment_fullnames(username, subreddits):
             # print(jsonresponse)
             # time.sleep(1)
 
-def get_user_comment_fullnames(username, subreddits):
-    url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
-    fullnames = []
-    while True:
-        jsonresponse = json.loads(subprocess.check_output([
-            "curl",
-            "-s",
-            url
-        ]).decode("utf-8"))
-        if "data" in jsonresponse:
-            for child in jsonresponse["data"]["children"]:
-                if child["data"]["subreddit"] in subreddits:
-                    fullnames.append(child["data"]["name"])
-            if jsonresponse["data"]["after"] == None:
-                break
-            else:
-                url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
-                url = url + "&after=" + jsonresponse["data"]["after"]
-    return fullnames
-
 def old_main():
     clientid = ""
     secret = ""
@@ -142,6 +122,26 @@ def edit_comments(clientid, secret, username, password, fullnames, note):
             "https://oauth.reddit.com/api/editusertext"
         ]).decode("utf-8"))
 
+def get_user_comment_fullnames(username, subreddits):
+    url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+    fullnames = []
+    while True:
+        jsonresponse = json.loads(subprocess.check_output([
+            "curl",
+            "-s",
+            url
+        ]).decode("utf-8"))
+        if "data" in jsonresponse:
+            for child in jsonresponse["data"]["children"]:
+                if child["data"]["subreddit"] in subreddits:
+                    fullnames.append(child["data"]["name"])
+            if jsonresponse["data"]["after"] == None:
+                break
+            else:
+                url = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+                url = url + "&after=" + jsonresponse["data"]["after"]
+    return fullnames
+        
 if __name__ == "__main__":
     useragent = "onesubwiper 1.0"
     access_token = None
@@ -160,7 +160,7 @@ if __name__ == "__main__":
             if "error" in jsonres:
                 if jsonres["error"] == "invalid_grant":
                     break
-    username = None
+    username = "trekman10"
     while username == None:
         jsonres = json.loads(subprocess.check_output([
             "curl", "-s", "-A", useragent,
@@ -169,5 +169,23 @@ if __name__ == "__main__":
         ]).decode("utf-8"))
         if "name" in jsonres:
             username = jsonres["name"]
-    print("USERNAME " + username)
-    
+    print("USERNAME: " + username)
+    comments = {}
+    commenturl = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+    while True:
+        jsonres = json.loads(subprocess.check_output(["curl", "-s", "-A", useragent, commenturl]).decode("utf-8"))
+        if "data" in jsonres:
+            for child in jsonres["data"]["children"]:
+                if child["data"]["subreddit"] in comments:
+                    comments[child["data"]["subreddit"]].append(child["data"]["name"])
+                else:
+                    comments[child["data"]["subreddit"]] = []
+                    comments[child["data"]["subreddit"]].append(child["data"]["name"])
+            if jsonres["data"]["after"] == None:
+                break
+            else:
+                commenturl = "https://pay.reddit.com/user/" + username + "/comments.json?t=all&limit=100&sort=new"
+                commenturl = commenturl + "&after=" + jsonres["data"]["after"]
+    for sub in comments:
+        print(sub + ": " + str(len(comments[sub])))
+
